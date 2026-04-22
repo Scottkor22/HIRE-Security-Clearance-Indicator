@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hire Security Clearance Indicator — User Guide</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #232f3e; line-height: 1.6; background: #f5f7fa; }
+  .header { background: #232f3e; color: white; padding: 40px 20px; text-align: center; }
+  .header h1 { font-size: 28px; margin-bottom: 8px; }
+  .header p { font-size: 16px; opacity: 0.8; }
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+  .card { background: white; border-radius: 8px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .card h2 { font-size: 20px; margin-bottom: 12px; color: #0073bb; }
+  .card h3 { font-size: 16px; margin: 16px 0 8px; }
+  .install-btn { display: inline-block; background: #ff9900; color: #232f3e; padding: 14px 28px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 16px; margin: 8px 4px; }
+  .install-btn:hover { background: #e88b00; }
+  .install-btn.secondary { background: #0073bb; color: white; }
+  .install-btn.secondary:hover { background: #005d99; }
+  .steps { counter-reset: step; list-style: none; padding: 0; }
+  .steps li { counter-increment: step; padding: 10px 0 10px 50px; position: relative; border-bottom: 1px solid #eee; }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before { content: counter(step); position: absolute; left: 0; top: 10px; width: 32px; height: 32px; background: #0073bb; color: white; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 700; font-size: 14px; }
+  .badge-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .badge-table th, .badge-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+  .badge-table th { background: #f0f2f5; font-weight: 600; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: 600; color: white; margin: 2px; }
+  .badge-tssci-poly { background: #800020; }
+  .badge-ci-poly { background: #b35900; }
+  .badge-tssci { background: #cc0000; }
+  .badge-top-secret { background: #e67300; }
+  .badge-secret { background: #ccaa00; color: #000; }
+  .badge-doe-q { background: #6a0dad; }
+  .badge-clearance { background: #0066cc; }
+  .badge-citizenship { background: #228b22; }
+  .page-tag { display: inline-block; background: #e8f4fd; color: #0073bb; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px; }
+  code { background: #f0f2f5; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+  .note { background: #fff8e1; border-left: 4px solid #ff9900; padding: 12px 16px; margin: 12px 0; border-radius: 0 4px 4px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔒 Hire Security Clearance Indicator</h1>
+  <p>Automatically detect and display security clearance badges on hire.amazon.com</p>
+</div>
+
+<div class="container">
+
+<div class="card" style="text-align: center;">
+  <h2>Quick Install</h2>
+  <p style="margin-bottom: 16px;">Two steps to get started:</p>
+  <a href="https://www.tampermonkey.net/" target="_blank" class="install-btn secondary">1. Install TamperMonkey</a>
+  <a href="hire-security-clearance-indicator.user.js" download class="install-btn">2. Download Script</a>
+  <p style="margin-top: 12px; font-size: 13px; color: #666;">After downloading, open TamperMonkey → Create new script → paste the file contents → Save</p>
+</div>
+
+<div class="card">
+  <h2>What It Does</h2>
+  <p>This TamperMonkey userscript scans candidate profiles on hire.amazon.com for security clearance and citizenship keywords. It displays color-coded badges next to candidate names so you can quickly identify cleared candidates without clicking into each profile.</p>
+</div>
+
+<div class="card">
+  <h2>Where Badges Appear</h2>
+  <table class="badge-table">
+    <tr><th>Page</th><th>How Badges Load</th></tr>
+    <tr><td><page-tag>Sourcing</page-tag> <code>/sourcing/discover</code></td><td>From cache or after opening resume flyout</td></tr>
+    <tr><td><page-tag>CDP</page-tag> <code>/person/{id}</code></td><td>From cache, notes, screening questions, resume PDF</td></tr>
+    <tr><td><page-tag>Jobs Tab</page-tag> <code>/reqs/{id}</code></td><td>From cache or auto-scanned via API</td></tr>
+    <tr><td><page-tag>Applicants</page-tag> <code>/ar</code></td><td>Auto-scanned via API (screening question answers)</td></tr>
+    <tr><td><page-tag>Rapid Review</page-tag></td><td>Scanned from flyout screening questions</td></tr>
+    <tr><td><page-tag>Recommendations</page-tag></td><td>From cache only</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Badge Reference</h2>
+  <table class="badge-table">
+    <tr><th>Badge</th><th>Color</th><th>Detected From</th></tr>
+    <tr><td><span class="badge badge-tssci-poly">TS/SCI + L2</span></td><td>Dark maroon</td><td>TS/SCI with Full Scope Polygraph, FSP, Lifestyle</td></tr>
+    <tr><td><span class="badge badge-ci-poly">TS/SCI + L1</span></td><td>Burnt orange</td><td>TS/SCI with CI Polygraph, Counter Intelligence</td></tr>
+    <tr><td><span class="badge badge-tssci">TS/SCI + Poly</span></td><td>Dark red</td><td>TS/SCI with Polygraph (unspecified type)</td></tr>
+    <tr><td><span class="badge badge-tssci">TS/SCI</span></td><td>Red</td><td>TS/SCI, TS,SCI, Top Secret SCI</td></tr>
+    <tr><td><span class="badge badge-tssci-poly">L2</span></td><td>Dark maroon</td><td>L2 Cleared, Level 2 Clearance</td></tr>
+    <tr><td><span class="badge badge-ci-poly">L1</span></td><td>Burnt orange</td><td>L1 Cleared, Level 1 Clearance</td></tr>
+    <tr><td><span class="badge badge-top-secret">Interim TS</span></td><td>Orange</td><td>Interim Top Secret</td></tr>
+    <tr><td><span class="badge badge-top-secret">Top Secret</span></td><td>Orange</td><td>Top Secret clearance</td></tr>
+    <tr><td><span class="badge badge-secret">DoD Secret</span></td><td>Gold</td><td>DoD Secret clearance</td></tr>
+    <tr><td><span class="badge badge-secret">Secret</span></td><td>Gold</td><td>Secret (from screening answer)</td></tr>
+    <tr><td><span class="badge badge-clearance">Public Trust</span></td><td>Blue</td><td>Public Trust</td></tr>
+    <tr><td><span class="badge badge-doe-q">DOE Q</span></td><td>Purple</td><td>DOE Q clearance</td></tr>
+    <tr><td><span class="badge badge-citizenship">US Citizen</span></td><td>Green</td><td>Screening answer: US Citizen, United States of America</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Installation Steps</h2>
+  <ol class="steps">
+    <li>Install the <a href="https://www.tampermonkey.net/" target="_blank">TamperMonkey browser extension</a> from the Chrome Web Store</li>
+    <li>Click the "Download Script" button above to save the <code>.user.js</code> file</li>
+    <li>Open TamperMonkey (click the icon in your browser toolbar) → Dashboard</li>
+    <li>Click the <strong>+</strong> tab to create a new script</li>
+    <li>Select all default code (Ctrl+A) and delete it</li>
+    <li>Open the downloaded <code>.user.js</code> file in a text editor, copy all contents (Ctrl+A, Ctrl+C)</li>
+    <li>Paste into TamperMonkey (Ctrl+V) and click Save (Ctrl+S)</li>
+    <li>Navigate to hire.amazon.com — badges will appear automatically</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h2>How Data Is Detected</h2>
+  <h3>Applicants Tab (Automatic)</h3>
+  <p>The script queries the hire.amazon.com API for each applicant's screening question answers. Badges appear automatically within seconds — no manual action needed.</p>
+
+  <h3>Jobs Tab (Automatic)</h3>
+  <p>Same API approach as the Applicants tab. Requires the job iCIMS ID in the URL.</p>
+
+  <h3>CDP — Candidate Detail Page</h3>
+  <p>Badges are detected from multiple sources:</p>
+  <ul style="margin: 8px 0 8px 20px;">
+    <li><strong>Notes</strong> — scanned automatically on page load</li>
+    <li><strong>Screening questions</strong> — scanned when the JSQ flyout is opened (~3 second delay)</li>
+    <li><strong>Resume PDF</strong> — scanned when the resume viewer loads (same-origin or cross-origin via pdf.js)</li>
+  </ul>
+
+  <h3>Sourcing Page</h3>
+  <p>Badges show from cache (previous scans) or after opening the resume flyout for a candidate.</p>
+
+  <h3>US Citizenship</h3>
+  <p>Only detected from screening question answers (strict mode):</p>
+  <ul style="margin: 8px 0 8px 20px;">
+    <li><code>Answer: US Citizen</code></li>
+    <li><code>Answer: United States of America</code></li>
+  </ul>
+  <p>If "Permanent resident" is also detected, the US Citizen badge is suppressed.</p>
+</div>
+
+<div class="card">
+  <h2>Badge Hierarchy</h2>
+  <p>Higher-level badges suppress lower-level ones to avoid duplicates:</p>
+  <ul style="margin: 8px 0 8px 20px;">
+    <li>TS/SCI + L2 suppresses everything below</li>
+    <li>TS/SCI suppresses Top Secret, Secret, L1, L2, DoD Secret</li>
+    <li>L2 suppresses L1</li>
+    <li>Top Secret suppresses Secret</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>Managing Badges</h2>
+  <h3>Clear a single candidate's badge</h3>
+  <p>Click the <strong>×</strong> button next to any badge to remove it and clear that candidate's cached data.</p>
+
+  <h3>Clear all cached badges</h3>
+  <p>Open the browser console (F12 → Console) and paste:</p>
+  <code>GM_setValue('hsc-clearance-cache', '{}')</code>
+
+  <h3>Cache behavior</h3>
+  <ul style="margin: 8px 0 8px 20px;">
+    <li>Badges persist across browser sessions via TamperMonkey storage</li>
+    <li>localStorage backup protects against TamperMonkey crashes</li>
+    <li>Cache auto-resets when the script version changes</li>
+    <li>No expiration — badges persist until manually cleared</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>Known Limitations</h2>
+  <ul style="margin: 0 0 0 20px;">
+    <li>Sourcing page badges require opening the resume flyout or having previously visited the CDP</li>
+    <li>US Citizenship is only detected from screening question answers, not notes or resume</li>
+    <li>Recommendations page shows cached badges only (no API auto-scan)</li>
+    <li>Skills tag text (e.g., "Security Clearance > SECRET") is stripped to avoid false positives</li>
+    <li>Each user builds their own cache — badges are not shared between users</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>Updating the Script</h2>
+  <ol class="steps">
+    <li>Download the latest <code>.user.js</code> file</li>
+    <li>Open TamperMonkey → click "Hire Security Clearance Indicator"</li>
+    <li>Select all (Ctrl+A), paste new code (Ctrl+V), save (Ctrl+S)</li>
+    <li>Refresh hire.amazon.com — the cache auto-resets on version change</li>
+  </ol>
+</div>
+
+</div>
+
+<div style="text-align: center; padding: 20px; color: #666; font-size: 13px;">
+  Hire Security Clearance Indicator v2.2 — For internal use only
+</div>
+
+</body>
+</html>

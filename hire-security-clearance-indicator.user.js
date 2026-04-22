@@ -4,6 +4,8 @@
 // @version      2.2.0
 // @description  Scans hire.amazon.com search results for security clearance and citizenship keywords, injects color-coded badges, and provides filter controls.
 // @match        https://hire.amazon.com/*
+// @updateURL    https://raw.githubusercontent.com/scottkor22/HIRE-Security-Clearance-Indicator/main/hire-security-clearance-indicator.user.js
+// @downloadURL  https://raw.githubusercontent.com/scottkor22/HIRE-Security-Clearance-Indicator/main/hire-security-clearance-indicator.user.js
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest

@@ -5,8 +5,10 @@ A TamperMonkey userscript that automatically detects and displays security clear
 ## Quick Install
 
 1. Install [TamperMonkey](https://www.tampermonkey.net/) for Chrome
-2. Click the `.user.js` file in this repo → click **Raw** → TamperMonkey will prompt to install
+2. [Click here to install the script](https://raw.githubusercontent.com/scottkor22/HIRE-Security-Clearance-Indicator/main/hire-security-clearance-indicator.user.js) — TamperMonkey will prompt to install
 3. Navigate to hire.amazon.com — badges appear automatically
+
+Or view the [User Guide](https://scottkor22.github.io/HIRE-Security-Clearance-Indicator/) for detailed documentation.
 
 ## Where Badges Appear
 

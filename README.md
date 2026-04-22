@@ -138,6 +138,12 @@ Badges re-render when navigating between pages without full reloads.
 3. Select all (Ctrl+A), paste (Ctrl+V), save (Ctrl+S)
 4. Cache auto-resets on version change
 
+## Auto-Updates
+
+The script includes `@updateURL` and `@downloadURL` pointing to the GitHub raw file. TamperMonkey checks for updates daily. When a new version is uploaded to GitHub with a bumped `@version` number, all users receive the update automatically within 24 hours.
+
+Users can also manually check: TamperMonkey icon → Dashboard → click the refresh icon next to the script.
+
 ## Known Limitations
 
 - Sourcing page badges require opening the resume flyout or having previously visited the CDP
@@ -150,6 +156,40 @@ Badges re-render when navigating between pages without full reloads.
 
 - [TamperMonkey](https://www.tampermonkey.net/) browser extension
 - [pdf.js 3.11.174](https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js) (loaded via @require for cross-origin PDF reading)
+
+## Changelog
+
+### v2.2.0 (Current)
+- Added Applicants tab API auto-scan (screening question answers via GraphQL)
+- Added Jobs tab API auto-scan
+- Added Rapid Review flyout scanning
+- Added JDP (Job Detail Page) cached badge display
+- Added cross-origin PDF reading on CDP via pdf.js + GM_xmlhttpRequest
+- Added "×" clear button on all badges
+- Added localStorage backup for cache (survives TamperMonkey crashes)
+- Added SPA navigation detection (pushState, popstate, URL polling)
+- Added "TS with Full Scope" and "Top Secret SCI" keyword variations
+- Added "TS, SCI" (comma separator) and "+" connector support
+- Added PDF text normalization for split words (e.g., "F ull Scope" → "Full Scope")
+- Added "current" modifier support (e.g., "TS/SCI with current CI polygraph")
+- Added Permanent Resident suppression (suppresses US Citizen badge)
+- Added screening question "Answer: No" stripping (prevents false positives)
+- Removed standalone Polygraph, Clearance, ISSA, ISA patterns (too many false positives)
+- Removed skills tag matching (e.g., "Security Clearance > SECRET")
+- Strict citizenship detection (screening answers only)
+- Fixed scan loop (only re-scans on card count change)
+- Fixed badge self-matching (own badge text no longer triggers false positives)
+- Cache auto-resets on version change
+- GitHub hosting with @updateURL for auto-updates
+
+### v1.0.0 (Initial)
+- Basic keyword matching for clearance and citizenship
+- Sourcing page card scanning
+- Resume PDF scanning (same-origin)
+- Badge rendering with color coding
+- Filter controls (clearance/citizenship toggles)
+- Filter persistence via localStorage
+- MutationObserver for dynamic content
 
 ## Version
 

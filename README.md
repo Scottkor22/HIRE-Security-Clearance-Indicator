@@ -20,6 +20,7 @@ Or view the [User Guide](https://scottkor22.github.io/HIRE-Security-Clearance-In
 | **Sourcing** | `/sourcing/discover` | Cache or resume flyout |
 | **Rapid Review** | `/reqs/{id}` flyout | Scanned from flyout screening questions |
 | **Recommendations** | `/sourcing/pools/.../recommendations` | Auto-scanned via API (previous applications) |
+| **Recruiting Pipeline** | `/?table=ALL_STAGES` | Auto-scanned via API (screening question answers) |
 
 ## Badge Types and Colors
 
@@ -77,6 +78,9 @@ Badges from cache or after opening the resume flyout.
 
 ### Recommendations Page
 The script searches for each candidate's previous job applications via the API, then queries their screening question answers. Badges appear automatically for candidates who have applied to jobs in the system. Candidates with no prior applications will only show cached badges from previous page visits.
+
+### Recruiting Pipeline
+The script extracts the person ID and job iCIMS ID from each row, then queries the screening question answers via the API. Badges appear automatically next to candidate names.
 
 ### Rapid Review
 Flyout dialog text is scanned for screening question answers.
@@ -162,7 +166,11 @@ Users can also manually check: TamperMonkey icon → Dashboard → click the ref
 
 ## Changelog
 
-### v2.3.0 (Current)
+### v2.4.0 (Current)
+- Added Recruiting Pipeline page auto-scan (`/?table=ALL_STAGES`)
+- Extracts person ID and job iCIMS ID from table rows for API queries
+
+### v2.3.0
 - Added Recommendations page auto-scan via API (searches previous job applications for screening answers)
 - Recommendations page now detects both `/recommendations` and `/search` URL patterns
 - Routing priority updated: Recommendations page checked before general sourcing page
@@ -201,4 +209,4 @@ Users can also manually check: TamperMonkey icon → Dashboard → click the ref
 
 ## Version
 
-Current: 2.3.0
+Current: 2.4.0

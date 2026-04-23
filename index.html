@@ -71,6 +71,7 @@
     <tr><td><page-tag>Applicants</page-tag> <code>/ar</code></td><td>Auto-scanned via API (screening question answers)</td></tr>
     <tr><td><page-tag>Rapid Review</page-tag></td><td>Scanned from flyout screening questions</td></tr>
     <tr><td><page-tag>Recommendations</page-tag></td><td>Auto-scanned via API (previous job applications)</td></tr>
+    <tr><td><page-tag>Pipeline</page-tag> <code>/?table=ALL_STAGES</code></td><td>Auto-scanned via API (screening question answers)</td></tr>
   </table>
 </div>
 
@@ -130,6 +131,9 @@
   <h3>Recommendations Page</h3>
   <p>The script automatically searches for each candidate's previous job applications via the API, then queries their screening question answers. Badges appear within seconds for candidates who have applied to jobs in the system.</p>
   <div class="note">Candidates with no prior job applications will only show badges if they were previously scanned on another page (CDP, Applicants, etc.).</div>
+
+  <h3>Recruiting Pipeline</h3>
+  <p>The script extracts the person ID and job iCIMS ID from each table row, then queries screening question answers via the API. Badges appear automatically next to candidate names.</p>
 
   <h3>US Citizenship</h3>
   <p>Only detected from screening question answers (strict mode):</p>
@@ -193,7 +197,7 @@
 </div>
 
 <div style="text-align: center; padding: 20px; color: #666; font-size: 13px;">
-  Hire Security Clearance Indicator v2.3 — For internal use only
+  Hire Security Clearance Indicator v2.4 — For internal use only
 </div>
 
 </body>

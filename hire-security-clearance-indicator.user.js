@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hire Security Clearance Indicator
 // @namespace    https://hire.amazon.com
-// @version      2.4.0
+// @version      2.4.1
 // @description  Scans hire.amazon.com search results for security clearance and citizenship keywords, injects color-coded badges, and provides filter controls.
 // @match        https://hire.amazon.com/*
 // @updateURL    https://raw.githubusercontent.com/scottkor22/HIRE-Security-Clearance-Indicator/main/hire-security-clearance-indicator.user.js
@@ -98,7 +98,10 @@
       .replace(/I have an active US government security clearance at the[\s\S]{0,100}?level[\s\S]{0,50}?Answer:\s*No/gi, '')
       .replace(/I have an active US government security clearance at the[\s\S]{0,100}?level[\s\S]{0,50}?A\.\s*No/gi, '')
       // Remove our own badge text concatenated with page chrome
-      .replace(/(?:TS\/SCI \+ L2|TS\/SCI \+ L1|TS\/SCI \+ Poly|TS\/SCI|Interim TS|Top Secret|DoD Secret|Public Trust|Yankee White|DOE Q|L1|L2|Secret|US Citizen)(?=\w|Open|Page|ID|Hide|Show)/g, ' ')
+      .replace(/(?:TS\/SCI \+ L2|TS\/SCI \+ L1|TS\/SCI \+ Poly|TS\/SCI|Interim TS|Top Secret|DoD Secret|Public Trust|Yankee White|DOE Q|L1|L2|Secret|US Citizen)(?=\w|Open|Page|ID|Hide|Show|×)/g, ' ')
+      // Strip screening question body text (questions about willingness/eligibility to obtain clearance)
+      .replace(/(?:would you be |are you )(?:eligible|able|willing)[^?]{0,200}\?/gi, '')
+      .replace(/(?:do you (?:currently )?(?:hold|have|possess))[^?]{0,200}\?/gi, '')
       // Diamond/DOD/Topaz eligibility notes
       .replace(/(?:Diamond|DOD|Topaz):\s*Candidate\s+appears\s+eligible\s+for\s+[^.]{0,100}/gi, '')
       .replace(/eligible\s+for\s+Level\s+(?:I|II|1|2)\s+initial\s+only/gi, '')
@@ -2344,13 +2347,13 @@
 
   // ── Main Entry Point ──────────────────────────────────────────────────
   if (typeof window.__HSC_TEST__ === 'undefined') {
-    console.log('[HSC] Script version 2.4.0 loaded');
+    console.log('[HSC] Script version 2.4.1 loaded');
 
     // Cache reset on version change
-    if (GM_getValue('hsc-cache-version', '') !== 'v2.6') {
+    if (GM_getValue('hsc-cache-version', '') !== 'v2.7') {
       GM_setValue('hsc-clearance-cache', '{}');
-      GM_setValue('hsc-cache-version', 'v2.6');
-      console.log('[HSC] Cache reset for v2.6');
+      GM_setValue('hsc-cache-version', 'v2.7');
+      console.log('[HSC] Cache reset for v2.7');
     }
 
     injectStyles();

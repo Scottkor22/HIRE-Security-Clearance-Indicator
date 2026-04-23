@@ -19,7 +19,7 @@ Or view the [User Guide](https://scottkor22.github.io/HIRE-Security-Clearance-In
 | **CDP** | `/person/{id}` | Cache, notes, JSQ flyout, resume PDF |
 | **Sourcing** | `/sourcing/discover` | Cache or resume flyout |
 | **Rapid Review** | `/reqs/{id}` flyout | Scanned from flyout screening questions |
-| **Recommendations** | `/sourcing/pools/.../recommendations` | Cache only |
+| **Recommendations** | `/sourcing/pools/.../recommendations` | Auto-scanned via API (previous applications) |
 
 ## Badge Types and Colors
 
@@ -74,6 +74,9 @@ Multiple detection sources:
 
 ### Sourcing Page
 Badges from cache or after opening the resume flyout.
+
+### Recommendations Page
+The script searches for each candidate's previous job applications via the API, then queries their screening question answers. Badges appear automatically for candidates who have applied to jobs in the system. Candidates with no prior applications will only show cached badges from previous page visits.
 
 ### Rapid Review
 Flyout dialog text is scanned for screening question answers.
@@ -148,7 +151,7 @@ Users can also manually check: TamperMonkey icon → Dashboard → click the ref
 
 - Sourcing page badges require opening the resume flyout or having previously visited the CDP
 - US Citizenship only detected from screening question answers (not notes or resume)
-- Recommendations page shows cached badges only (no API auto-scan)
+- Recommendations page auto-scan only works for candidates with previous job applications
 - Each user builds their own cache — badges are not shared between users
 - TamperMonkey crashes can wipe GM storage (localStorage backup mitigates this)
 
@@ -159,7 +162,12 @@ Users can also manually check: TamperMonkey icon → Dashboard → click the ref
 
 ## Changelog
 
-### v2.2.0 (Current)
+### v2.3.0 (Current)
+- Added Recommendations page auto-scan via API (searches previous job applications for screening answers)
+- Recommendations page now detects both `/recommendations` and `/search` URL patterns
+- Routing priority updated: Recommendations page checked before general sourcing page
+
+### v2.2.0
 - Added Applicants tab API auto-scan (screening question answers via GraphQL)
 - Added Jobs tab API auto-scan
 - Added Rapid Review flyout scanning
@@ -193,4 +201,4 @@ Users can also manually check: TamperMonkey icon → Dashboard → click the ref
 
 ## Version
 
-Current: 2.2.0
+Current: 2.3.0

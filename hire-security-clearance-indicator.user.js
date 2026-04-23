@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hire Security Clearance Indicator
 // @namespace    https://hire.amazon.com
-// @version      2.2.0
+// @version      2.3.0
 // @description  Scans hire.amazon.com search results for security clearance and citizenship keywords, injects color-coded badges, and provides filter controls.
 // @match        https://hire.amazon.com/*
 // @updateURL    https://raw.githubusercontent.com/scottkor22/HIRE-Security-Clearance-Indicator/main/hire-security-clearance-indicator.user.js
@@ -1128,6 +1128,156 @@
     }, 3000);
   }
 
+  function isRecommendationsPage() {
+    return /\/sourcing\/pools\/details\/[^/]+\/(recommendations|search)/.test(window.location.pathname);
+  }
+
+  function handleRecommendationsPage() {
+    injectStyles();
+    var recsScannedPersons = {};
+
+    function scanRecommendations() {
+      var personLinks = document.querySelectorAll('a[href*="/person/"]');
+      personLinks.forEach(function (link) {
+        // Skip if already has badges
+        if (link.parentElement.querySelector('.hsc-badge-container')) return;
+
+        var href = link.getAttribute('href') || '';
+        var personMatch = href.match(/\/person\/(\d+)/);
+        if (!personMatch) return;
+
+        var pid = personMatch[1];
+        var personId = 'person:' + pid;
+        var candidateName = link.textContent.trim();
+        var nameKey = 'name:' + candidateName;
+
+        // Try cache first (from previous CDP/Applicants/Jobs visits)
+        var cached = getCachedResult(personId) || getCachedResult(nameKey);
+        if (cached && (cached.clearances.length > 0 || cached.hasCitizenship)) {
+          injectRecsBadge(link, cached);
+          return;
+        }
+
+        // Skip if already attempted API scan
+        if (recsScannedPersons[pid]) return;
+        recsScannedPersons[pid] = true;
+
+        // Chain: searchApplicationSummaries → getApplicationQuestions
+        // First, find this person's job applications
+        fetch('/ar/api/graphql', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            query: '{ searchApplicationSummaries(filter: { personIdmsId: "' + pid + '" }, pagination: { pageSize: 10, pageNumber: 1 }) { applicationSummaries { jobIcimsId personIcimsId } } }'
+          }),
+          credentials: 'include'
+        }).then(function (r) { return r.json(); }).then(function (data) {
+          if (!data.data || !data.data.searchApplicationSummaries) return;
+          var summaries = data.data.searchApplicationSummaries.applicationSummaries || [];
+          if (summaries.length === 0) return;
+
+          // Query screening questions for each application (up to 5 to avoid flooding)
+          var toQuery = summaries.slice(0, 5);
+          var allAnswerText = '';
+          var completed = 0;
+
+          toQuery.forEach(function (app) {
+            var personIcimsId = app.personIcimsId || pid;
+            var jobIcimsId = app.jobIcimsId;
+            if (!jobIcimsId) {
+              completed++;
+              return;
+            }
+
+            fetch('/ar/api/graphql', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                query: '{ getApplicationQuestions(personIcimsId: "' + personIcimsId + '", jobIcimsId: "' + jobIcimsId + '") { formSections { questions { title answer } } } }'
+              }),
+              credentials: 'include'
+            }).then(function (r2) { return r2.json(); }).then(function (qData) {
+              if (qData.data && qData.data.getApplicationQuestions) {
+                var sections = qData.data.getApplicationQuestions.formSections || [];
+                sections.forEach(function (s) {
+                  (s.questions || []).forEach(function (q) {
+                    if (q.answer) allAnswerText += ' Answer: ' + q.answer;
+                  });
+                });
+              }
+              completed++;
+              if (completed === toQuery.length) {
+                finishRecsScan(pid, candidateName, link, allAnswerText);
+              }
+            }).catch(function () {
+              completed++;
+              if (completed === toQuery.length) {
+                finishRecsScan(pid, candidateName, link, allAnswerText);
+              }
+            });
+          });
+        }).catch(function () { /* API error, skip */ });
+      });
+    }
+
+    function finishRecsScan(pid, candidateName, link, allAnswerText) {
+      if (allAnswerText.length < 5) return;
+
+      var apiMatch = match(allAnswerText);
+      if (apiMatch.clearances.length === 0 && !apiMatch.hasCitizenship) return;
+
+      // Merge with existing cache
+      var personId = 'person:' + pid;
+      var existing = getCachedResult(personId) || { clearances: [], hasCitizenship: false, citizenshipKeyword: null };
+      var merged = {
+        clearances: apiMatch.clearances.slice(),
+        hasCitizenship: existing.hasCitizenship || apiMatch.hasCitizenship,
+        citizenshipKeyword: existing.citizenshipKeyword || apiMatch.citizenshipKeyword,
+      };
+      for (var i = 0; i < existing.clearances.length; i++) {
+        if (merged.clearances.indexOf(existing.clearances[i]) === -1) {
+          merged.clearances.push(existing.clearances[i]);
+        }
+      }
+      merged.clearances = dedupClearances(merged.clearances);
+
+      cacheResult(personId, merged, candidateName);
+      injectRecsBadge(link, merged);
+      console.log('[HSC] Recommendations badge injected for:', candidateName);
+    }
+
+    function injectRecsBadge(link, matchResult) {
+      if (link.parentElement.querySelector('.hsc-badge-container')) return;
+      var cleanClearances = dedupClearances(matchResult.clearances);
+      if (cleanClearances.length === 0 && !matchResult.hasCitizenship) return;
+
+      var container = document.createElement('span');
+      container.className = 'hsc-badge-container';
+      container.style.marginLeft = '6px';
+      for (var i = 0; i < cleanClearances.length; i++) {
+        var config = CLEARANCE_BADGE_CONFIG[cleanClearances[i]];
+        if (config) {
+          var badge = document.createElement('span');
+          badge.className = 'hsc-badge ' + config.colorClass;
+          badge.textContent = config.text;
+          container.appendChild(badge);
+        }
+      }
+      if (matchResult.hasCitizenship) {
+        var cb = document.createElement('span');
+        cb.className = 'hsc-badge ' + CITIZENSHIP_BADGE_CONFIG.colorClass;
+        cb.textContent = CITIZENSHIP_BADGE_CONFIG.text;
+        container.appendChild(cb);
+      }
+      link.parentElement.insertBefore(container, link.nextSibling);
+    }
+
+    // Initial scan after page loads
+    setTimeout(scanRecommendations, 2000);
+    // Re-scan periodically for pagination/scroll changes
+    setInterval(scanRecommendations, 5000);
+  }
+
   function handleDetailPage() {
     injectStyles();
 
@@ -1975,6 +2125,7 @@
   if (typeof window.__HSC_TEST__ !== 'undefined') {
     window.__HSC = window.__HSC || {};
     window.__HSC.isSearchResultsPage = isSearchResultsPage;
+    window.__HSC.isRecommendationsPage = isRecommendationsPage;
     window.__HSC.match = match;
     window.__HSC.CLEARANCE_PATTERNS = CLEARANCE_PATTERNS;
     window.__HSC.CITIZENSHIP_PATTERNS = CITIZENSHIP_PATTERNS;
@@ -2060,13 +2211,13 @@
 
   // ── Main Entry Point ──────────────────────────────────────────────────
   if (typeof window.__HSC_TEST__ === 'undefined') {
-    console.log('[HSC] Script version 2.2.0 loaded');
+    console.log('[HSC] Script version 2.3.0 loaded');
 
     // Cache reset on version change
-    if (GM_getValue('hsc-cache-version', '') !== 'v2.4') {
+    if (GM_getValue('hsc-cache-version', '') !== 'v2.5') {
       GM_setValue('hsc-clearance-cache', '{}');
-      GM_setValue('hsc-cache-version', 'v2.4');
-      console.log('[HSC] Cache reset for v2.4');
+      GM_setValue('hsc-cache-version', 'v2.5');
+      console.log('[HSC] Cache reset for v2.5');
     }
 
     injectStyles();
@@ -2085,7 +2236,10 @@
       }
       disconnect();
 
-      if (isSearchResultsPage()) {
+      if (isRecommendationsPage()) {
+        console.log('[HSC] Recommendations page:', currentUrl);
+        handleRecommendationsPage();
+      } else if (isSearchResultsPage()) {
         console.log('[HSC] Search results page:', currentUrl);
 
         function waitForCards() {

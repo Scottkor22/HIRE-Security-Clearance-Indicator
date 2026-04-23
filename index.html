@@ -70,7 +70,7 @@
     <tr><td><page-tag>Jobs Tab</page-tag> <code>/reqs/{id}</code></td><td>From cache or auto-scanned via API</td></tr>
     <tr><td><page-tag>Applicants</page-tag> <code>/ar</code></td><td>Auto-scanned via API (screening question answers)</td></tr>
     <tr><td><page-tag>Rapid Review</page-tag></td><td>Scanned from flyout screening questions</td></tr>
-    <tr><td><page-tag>Recommendations</page-tag></td><td>From cache only</td></tr>
+    <tr><td><page-tag>Recommendations</page-tag></td><td>Auto-scanned via API (previous job applications)</td></tr>
   </table>
 </div>
 
@@ -127,6 +127,10 @@
   <h3>Sourcing Page</h3>
   <p>Badges show from cache (previous scans) or after opening the resume flyout for a candidate.</p>
 
+  <h3>Recommendations Page</h3>
+  <p>The script automatically searches for each candidate's previous job applications via the API, then queries their screening question answers. Badges appear within seconds for candidates who have applied to jobs in the system.</p>
+  <div class="note">Candidates with no prior job applications will only show badges if they were previously scanned on another page (CDP, Applicants, etc.).</div>
+
   <h3>US Citizenship</h3>
   <p>Only detected from screening question answers (strict mode):</p>
   <ul style="margin: 8px 0 8px 20px;">
@@ -170,7 +174,7 @@
   <ul style="margin: 0 0 0 20px;">
     <li>Sourcing page badges require opening the resume flyout or having previously visited the CDP</li>
     <li>US Citizenship is only detected from screening question answers, not notes or resume</li>
-    <li>Recommendations page shows cached badges only (no API auto-scan)</li>
+    <li>Recommendations page auto-scan only works for candidates with previous job applications</li>
     <li>Skills tag text (e.g., "Security Clearance > SECRET") is stripped to avoid false positives</li>
     <li>Each user builds their own cache — badges are not shared between users</li>
   </ul>
@@ -189,7 +193,7 @@
 </div>
 
 <div style="text-align: center; padding: 20px; color: #666; font-size: 13px;">
-  Hire Security Clearance Indicator v2.2 — For internal use only
+  Hire Security Clearance Indicator v2.3 — For internal use only
 </div>
 
 </body>
